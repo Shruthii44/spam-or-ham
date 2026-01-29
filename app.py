@@ -1,11 +1,10 @@
 import streamlit as st
-import nltk
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-import nltk
 import os
+import pickle
+import nltk
+from preprocessing import clean
 
+# ------------------ NLTK Cloud-safe setup ------------------
 NLTK_DATA_PATH = os.path.join(os.getcwd(), "nltk_data")
 nltk.data.path.append(NLTK_DATA_PATH)
 
@@ -15,33 +14,32 @@ for pkg in ['punkt', 'stopwords', 'wordnet']:
     except LookupError:
         nltk.download(pkg, download_dir=NLTK_DATA_PATH)
 
+# ------------------ Load model ------------------
+MODEL_PATH = os.path.join(os.getcwd(), "spam_email_model.pkl")
 
-import pickle
+if not os.path.exists(MODEL_PATH):
+    st.error(f"❌ Model not found at {MODEL_PATH}")
+    st.stop()
 
-from preprocessing import clean
-
-
-# Load the trained model
-with open("spam_email_models.pkl", "rb") as file:
+with open(MODEL_PATH, "rb") as file:
     model = pickle.load(file)
-# App title
-st.title("📧 Spam Email Classifier")
 
+# ------------------ Streamlit UI ------------------
+st.title("📧 Spam Email Classifier")
 st.write("Enter an email message below to check whether it is **Spam** or **Ham**.")
 
-# Text input
 email_text = st.text_area("Email Text", height=150)
 
-# Predict button
 if st.button("Predict"):
     if email_text.strip() == "":
-        st.warning("Please enter some text")
+        st.warning("⚠️ Please enter some text")
     else:
         prediction = model.predict([email_text])[0]
-
-        if prediction == "spam":
+        if str(prediction).lower() == "spam":
             st.error("🚨 This email is SPAM")
         else:
             st.success("✅ This email is HAM (Not Spam)")
+
+
 
 
