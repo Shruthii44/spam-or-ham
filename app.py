@@ -3,6 +3,18 @@ import nltk
 nltk.download('punkt', quiet=True)
 nltk.download('stopwords', quiet=True)
 nltk.download('wordnet', quiet=True)
+import nltk
+import os
+
+NLTK_DATA_PATH = os.path.join(os.getcwd(), "nltk_data")
+nltk.data.path.append(NLTK_DATA_PATH)
+
+for pkg in ['punkt', 'stopwords', 'wordnet']:
+    try:
+        nltk.data.find(pkg)
+    except LookupError:
+        nltk.download(pkg, download_dir=NLTK_DATA_PATH)
+
 
 import pickle
 
@@ -31,4 +43,5 @@ if st.button("Predict"):
             st.error("🚨 This email is SPAM")
         else:
             st.success("✅ This email is HAM (Not Spam)")
+
 
